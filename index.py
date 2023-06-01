@@ -1,5 +1,6 @@
 import pygame
 import random
+import time
 pygame.init()
 pygame.display.set_caption("Jogo do Meteoro")
 tamanho = (600, 600)
@@ -15,16 +16,18 @@ posicaoY = 550
 nave = pygame.image.load("foguetecerto.png")
 fundo = pygame.image.load("imagemdefundo.jpg")
 meteoro = pygame.image.load("meteoro.png")
-#meteoroSound = pygame.mixer.Sound("")
+meteoroSound = pygame.mixer.Sound("meteoro.mp3")
 pygame.display.set_icon(meteoro)
 posicaoXMeteoro = 300
 posicaoYMeteoro = -100
 velocidadeMeteoro = 1
 direcaobolinha = True
-missil = pygame.image.load("missil.png")
 pygame.mixer.music.load("trilha.mp3")
 pygame.mixer.music.play(-1)
 pontos = 0
+font = pygame.font.Font(None, 36)
+font2 = pygame.font.Font(None, 50)
+dificuldade = 60
 while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -55,7 +58,7 @@ while running:
         posicaoX = 0
     if posicaoY > 500:
         posicaoY = 500
-        pontos = pontos + 1
+
     elif posicaoY < 0:
         posicaoY = 0
     else:
@@ -68,15 +71,35 @@ while running:
 
     if posicaoYMeteoro > 600:
         posicaoYMeteoro = -100
-        posicaoXMeteoro = random.randint(0,600)
-        velocidadeMeteoro = velocidadeMeteoro + 2
-        #pygame.mixer.Sound.play(meteoroSound)
+        posicaoXMeteoro = random.randint(0, 600)
+        velocidadeMeteoro = velocidadeMeteoro + 1
+        pontos = pontos + 1
+        pygame.mixer.Sound.play(meteoroSound)
 
     posicaoYMeteoro = posicaoYMeteoro + velocidadeMeteoro
 
-    #display.blit(missil, (300, 0))
+    # display.blit(missil, (300, 0))
     display.blit(meteoro, (posicaoXMeteoro, posicaoYMeteoro))
+    texto = font.render("Pontos: "+str(pontos), True, (255, 255, 255))
+    display.blit(texto, (10, 10))
     clock.tick(60)
-    pygame.display.update()
 
+    pixelsYNave = list(range(posicaoY, posicaoY + 100))
+    pixelsXNave = list(range(posicaoX, posicaoX + 100))
+
+    # 101 é o tamanho da imagem
+    pixelsYMeteoro = list(range(posicaoYMeteoro, posicaoYMeteoro+100))
+    pixelsXMeteoro = list(range(posicaoXMeteoro, posicaoXMeteoro+100))
+
+    if len(list(set(pixelsXNave) & set(pixelsXMeteoro))) > dificuldade:
+        if len(list(set(pixelsYNave) & set(pixelsYMeteoro))) > dificuldade:
+            youlose = "YOU LOSE"
+            texto2 = font2.render(youlose, True, (255, 255, 255))
+            display.blit(texto2, (230, 300))
+
+            running = False
+            print("Morreu!")
+
+    pygame.display.update()
+time.sleep(3)
 pygame.quit()
